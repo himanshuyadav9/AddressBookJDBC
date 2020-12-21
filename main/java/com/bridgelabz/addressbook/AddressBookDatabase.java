@@ -7,6 +7,7 @@ import java.util.List;
 
 public class AddressBookDatabase {
     private static AddressBookDatabase addressBookDatabase;
+    private PreparedStatement addressBookDataStatement;
 
     private AddressBookDatabase() {
 
@@ -47,7 +48,7 @@ public class AddressBookDatabase {
         return personList;
     }
 
-    private List<Person> getPersonData(ResultSet resultSet) {
+    public List<Person> getPersonData(ResultSet resultSet) {
 
         List<Person> personList = new ArrayList<>();
         try {
@@ -68,6 +69,44 @@ public class AddressBookDatabase {
             e.printStackTrace();
         }
         return personList;
+    }
+    public int updateContactNumber(String firstName, String contactNumber) {
+        return this.updateAddressBookDataUsingStatement(firstName, contactNumber);
 
+    }
+
+    private int updateAddressBookDataUsingStatement(String firstName, String phoneNumber) {
+        String sql = String.format("update person set phoneNumber = '%s' where firstName = '%s';", phoneNumber, firstName);
+        try (Connection connection = this.getConnection()) {
+            Statement statement = connection.createStatement();
+            return statement.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Person> getaddressBookData(String firstName) {
+        List<Person> personList = null;
+        if (this.addressBookDataStatement == null)
+            this.prepareStatementForAddressBookData();
+        try {
+            addressBookDataStatement.setString(1, firstName);
+            ResultSet resultSet = addressBookDataStatement.executeQuery();
+            personList = this.getPersonData(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return personList;
+    }
+
+    private void prepareStatementForAddressBookData() {
+        try {
+            Connection connection = this.getConnection();
+            String sql = "SELECT * FROM person WHERE firstName = ?;";
+            addressBookDataStatement = connection.prepareStatement(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

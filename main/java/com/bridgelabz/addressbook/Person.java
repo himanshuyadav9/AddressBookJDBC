@@ -4,13 +4,13 @@ import java.time.LocalDate;
 
 public class Person {
     private int id;
-    private String firstName;
+    public String firstName;
     private String lastName;
     private String address;
     private String city;
     private String state;
     private String zip;
-    private String phoneNumber;
+    public  String phoneNumber;
     private String email;
     private LocalDate entryDate;
 
